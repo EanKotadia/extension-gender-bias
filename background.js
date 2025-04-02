@@ -101,7 +101,7 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.get("apiKey", (data) => {
         if (!data.apiKey) {
             // Using your provided API key as the default
-            const defaultApiKey = "AIzaSyBiyGVo8nRwozOSvOod-Csj3fAX__VhYq0";
+            const defaultApiKey = "KEY";
             chrome.storage.local.set({ apiKey: defaultApiKey }, () => {
                 console.log("API Key initialized.");
                 settings.apiKey = defaultApiKey;
