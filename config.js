@@ -9,7 +9,7 @@ export function getApiKey() {
             }
 
             if (!data.apiKey) {
-                const defaultApiKey = ""; // Replace with your actual default key
+                const defaultApiKey = "KEY"; // Replace with your actual default key
                 chrome.storage.local.set({ apiKey: defaultApiKey }, () => {
                     console.log("API Key initialized.");
                     resolve(defaultApiKey);
