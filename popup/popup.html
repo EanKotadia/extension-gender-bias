@@ -3,7 +3,7 @@
 
 <head>
     <title>Bias Detector</title>
-    <link rel="stylesheet" href="popup.css">
+
 </head>
 
 <body>
@@ -25,6 +25,12 @@
             <input type="checkbox" id="fallbackToggle" checked>
             <span class="slider"></span>
         </label>
+    </div>
+
+    <div class="api-key-container">
+        <label for="apiKeyInput">Google Perspective API Key:</label>
+        <input type="text" id="apiKeyInput" placeholder="Enter your API key">
+        <button id="saveApiKey">Save Key</button>
     </div>
 
     <script src="popup.js"></script>

@@ -56,6 +56,206 @@ const genderBiasedWords = [
         category: "gender"
     }
 ];
+// Global variables
+let settings = {
+    apiKey: "",
+    highlightEnabled: true,
+    useFallback: true,
+    toxicityThreshold: 0.7,
+    identityThreshold: 0.5,
+    insultThreshold: 0.6
+};
+let biasCache = {};
+
+// Load settings when content script starts
+loadSettings().then(startObserving);
+
+// Load settings from background script
+function loadSettings() {
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ action: "getSettings" }, (response) => {
+            if (response && response.settings) {
+                settings = response.settings;
+                biasCache = response.biasCache || {};
+                console.log("Settings loaded in content script:", settings);
+            } else {
+                console.error("Failed to load settings from background");
+            }
+            resolve();
+        });
+    });
+}
+
+// Function to start observing the page
+function startObserving() {
+    // Create observer for text input fields
+    const inputObserver = new MutationObserver(handleMutations);
+
+    // Observe document for added nodes
+    inputObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Process existing input fields
+    processExistingElements();
+}
+
+// Process text input fields already on the page
+function processExistingElements() {
+    const textInputs = document.querySelectorAll('input[type="text"], textarea');
+    textInputs.forEach(input => {
+        if (!input.hasAttribute('bias-detector-processed')) {
+            attachEventListeners(input);
+            input.setAttribute('bias-detector-processed', 'true');
+        }
+    });
+}
+
+// Handle DOM mutations
+function handleMutations(mutations) {
+    mutations.forEach(mutation => {
+        if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    // Check if the node is a text input or textarea
+                    if ((node.tagName === 'INPUT' && node.type === 'text') || node.tagName === 'TEXTAREA') {
+                        attachEventListeners(node);
+                        node.setAttribute('bias-detector-processed', 'true');
+                    }
+
+                    // Check for inputs within the added node
+                    const textInputs = node.querySelectorAll('input[type="text"], textarea');
+                    textInputs.forEach(input => {
+                        if (!input.hasAttribute('bias-detector-processed')) {
+                            attachEventListeners(input);
+                            input.setAttribute('bias-detector-processed', 'true');
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+// Attach event listeners to input elements
+function attachEventListeners(element) {
+    element.addEventListener('blur', handleInputBlur);
+    element.addEventListener('input', handleInput);
+}
+
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+// Handle input events with debouncing
+const handleInput = debounce(function (event) {
+    if (!settings.highlightEnabled) return;
+
+    const text = event.target.value;
+    if (text.length > 10) { // Only check if there's meaningful content
+        checkBiasPerspective(text).then(results => {
+            if (results.length > 0 && results[0].info.isBiased) {
+                highlightElement(event.target);
+            } else {
+                removeHighlight(event.target);
+            }
+        });
+    }
+}, 1000); // Wait 1 second after typing stops
+
+// Handle input blur events
+async function handleInputBlur(event) {
+    if (!settings.highlightEnabled) return;
+
+    const text = event.target.value;
+    if (text.trim().length < 10) {
+        removeHighlight(event.target);
+        return;
+    }
+
+    const results = await checkBiasPerspective(text);
+    if (results.length > 0 && results[0].info.isBiased) {
+        highlightElement(event.target);
+
+        // Show bias information tooltip
+        const biasInfo = results[0].info;
+        showBiasTooltip(event.target, biasInfo);
+    } else {
+        removeHighlight(event.target);
+    }
+}
+
+// Function to highlight biased text elements
+function highlightElement(element) {
+    element.classList.add('bias-highlight');
+}
+
+// Function to remove highlight
+function removeHighlight(element) {
+    element.classList.remove('bias-highlight');
+
+    // Remove tooltip if it exists
+    const tooltip = document.getElementById('bias-tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
+
+// Show bias tooltip near the element
+function showBiasTooltip(element, biasInfo) {
+    // Remove existing tooltip if any
+    const existingTooltip = document.getElementById('bias-tooltip');
+    if (existingTooltip) {
+        existingTooltip.remove();
+    }
+
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.id = 'bias-tooltip';
+    tooltip.className = 'bias-tooltip';
+
+    // Create tooltip content
+    let tooltipContent = '<h4>Potential Bias Detected</h4>';
+    tooltipContent += `<p>Types: ${biasInfo.biasTypes.join(', ')}</p>`;
+    tooltipContent += '<h5>Suggestions:</h5><ul>';
+
+    biasInfo.suggestions.forEach(suggestion => {
+        tooltipContent += `<li>${suggestion}</li>`;
+    });
+
+    tooltipContent += '</ul>';
+    tooltipContent += '<span class="close-tooltip">×</span>';
+
+    tooltip.innerHTML = tooltipContent;
+
+    // Position tooltip near the element
+    const rect = element.getBoundingClientRect();
+    tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
+    tooltip.style.left = `${rect.left + window.scrollX}px`;
+
+    // Add tooltip to page
+    document.body.appendChild(tooltip);
+
+    // Add event listener to close button
+    const closeButton = tooltip.querySelector('.close-tooltip');
+    closeButton.addEventListener('click', () => {
+        tooltip.remove();
+    });
+
+    // Auto-close after 10 seconds
+    setTimeout(() => {
+        if (document.getElementById('bias-tooltip')) {
+            tooltip.remove();
+        }
+    }, 10000);
+}
 
 async function checkBiasPerspective(text) {
     if (text.trim().length < 10) return [];
@@ -68,8 +268,13 @@ async function checkBiasPerspective(text) {
         }] : [];
     }
 
+    if (!settings.apiKey && !settings.useFallback) {
+        console.warn("No API key set for Perspective API and fallback is disabled");
+        return [];
+    }
+
     if (!settings.apiKey) {
-        console.warn("No API key set for Perspective API");
+        console.warn("No API key set for Perspective API, using fallback");
         return checkBiasFallback(text);
     }
 
@@ -104,13 +309,36 @@ async function checkBiasPerspective(text) {
         ]);
 
         const data = await response.json();
-        return processBiasData(data, text, textHash);
+
+        // Check if API returned an error
+        if (data.error) {
+            console.error("Perspective API error:", data.error);
+            // Use fallback if API returns an error
+            return settings.useFallback ? checkBiasFallback(text) : [];
+        }
+
+        const results = processBiasData(data, text, textHash);
+
+        // Update cache in background script
+        updateCache({
+            [textHash]: biasCache[textHash]
+        });
+
+        return results;
 
     } catch (error) {
         console.error("Error checking bias with Perspective API or timeout:", error);
         // Fallback to alternative method if API fails or times out
-        return checkBiasFallback(text);
+        return settings.useFallback ? checkBiasFallback(text) : [];
     }
+}
+
+// Update the bias cache in background script
+function updateCache(newCacheData) {
+    chrome.runtime.sendMessage({
+        action: "updateCache",
+        cache: newCacheData
+    });
 }
 
 // Process the bias data
@@ -176,41 +404,58 @@ function processBiasData(data, originalText, textHash) {
         });
     }
 
-    // Cache the result
-    biasCache[textHash] = { isBiased, suggestions, biasTypes };
+    // Cache the result with timestamp
+    biasCache[textHash] = {
+        isBiased,
+        suggestions,
+        biasTypes,
+        timestamp: Date.now()
+    };
 
     return isBiased ? [{ term: originalText, info: biasCache[textHash] }] : [];
 }
 
 // Fallback method for bias checking if Perspective API fails
 function checkBiasFallback(text) {
-    const results = [];
+    const textHash = hashString(text);
     const genderBiasResult = checkForGenderBias(text);
 
+    let result;
+
     if (genderBiasResult.length > 0) {
-        results.push({
+        result = {
             term: text,
             info: {
                 isBiased: true,
                 suggestions: genderBiasResult.map(result =>
                     `Replace "${result.biased}" with ${result.neutral.join(", ")}.`
                 ),
-                biasTypes: ["gender-biased language"]
+                biasTypes: ["gender-biased language"],
+                timestamp: Date.now()
             }
-        });
+        };
     } else {
-        results.push({
+        // If no bias detected in fallback, don't mark as biased
+        result = {
             term: text,
             info: {
                 isBiased: false,
-                suggestions: ["No bias detected in the fallback check. Consider reviewing manually."],
-                biasTypes: []
+                suggestions: [],
+                biasTypes: [],
+                timestamp: Date.now()
             }
-        });
+        };
     }
 
-    console.log("Using fallback analysis due to API failure or timeout.");
-    return results;
+    // Cache the result
+    biasCache[textHash] = result.info;
+
+    // Update cache in background
+    updateCache({
+        [textHash]: result.info
+    });
+
+    return result.info.isBiased ? [result] : [];
 }
 
 // Gender bias check function

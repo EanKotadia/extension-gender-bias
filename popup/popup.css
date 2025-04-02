@@ -1,199 +1,102 @@
-/* Common Styling for both Popup and Options Page */
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
-
 body {
-    font-family: 'Space Mono', monospace;
-    background-color: #121212;
-    color: white;
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    margin: 0;
-    box-sizing: border-box;
-    font-size: 12px;
+    width: 300px;
+    padding: 15px;
+    font-family: Arial, sans-serif;
 }
 
-h1,
-h2 {
-    font-size: 16px;
+h1 {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.status {
+    margin-bottom: 15px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
     font-weight: bold;
-    margin-bottom: 18px;
-    letter-spacing: 0.5px;
 }
 
-h2 {
-    margin-top: 35px;
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
-.form-group {
-    margin-bottom: 20px;
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
 }
 
-label {
-    font-size: 14px;
-    margin-bottom: 10px;
-    display: block;
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-input[type="text"],
-select,
-input[type="range"] {
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #4CAF50;
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+.api-key-container {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.api-key-container input {
     width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    background-color: #333;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 5px;
+    padding: 8px;
     margin-top: 5px;
     box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
-input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    background-color: #444;
-    border-radius: 3px;
-    margin-right: 10px;
-}
-
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.checkbox-container label {
-    font-size: 14px;
-}
-
-.info-text {
-    font-size: 12px;
-    color: #888;
-}
-
-.slider-container {
-    margin-top: 10px;
-}
-
-/* Save status styling */
-#saveStatus {
-    margin-top: 20px;
-    color: #4CAF50;
-    font-weight: bold;
-    display: none;
-}
-
-/* Button styling */
-button {
-    background-color: #484848;
+.api-key-container button {
+    padding: 8px 12px;
+    background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 10px 15px;
+    border-radius: 4px;
     cursor: pointer;
-    width: 100%;
-    border-radius: 5px;
-    font-size: 16px;
-    margin-top: 10px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-family: 'Space Mono', monospace;
+    margin-top: 8px;
 }
 
-button:hover {
-    background-color: #3e3e3e;
-    transform: scale(1.05);
-}
-
-button:active {
-    transform: scale(0.95);
-}
-
-/* Keyframe animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Styles for the sliders */
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 10px;
-    background: #444;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
-
-input[type="range"]:hover {
-    background: #666;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #4CAF50;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-input[type="range"]:hover::-webkit-slider-thumb {
-    background: #66BB6A;
-}
-
-input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: #4CAF50;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-input[type="range"]:hover::-moz-range-thumb {
-    background: #66BB6A;
-}
-
-input[type="range"]:focus {
-    outline: none;
-}
-
-/* Adjusting slider labels */
-#toxicityValue,
-#identityValue,
-#insultValue {
-    display: inline-block;
-    font-size: 14px;
-    margin-top: 5px;
-    color: #bbb;
-}
-
-#toxicityValue,
-#identityValue,
-#insultValue {
-    font-size: 14px;
-}
-
-#toxicityValue {
-    color: #FF7043;
-}
-
-#identityValue {
-    color: #FFEB3B;
-}
-
-#insultValue {
-    color: #4CAF50;
+.api-key-container button:hover {
+    background-color: #45a049;
 }

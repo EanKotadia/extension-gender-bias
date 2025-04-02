@@ -1,59 +1,53 @@
-/* Styles for bias-detected inputs */
-input[type="text"].bias-detected,
-textarea.bias-detected {
-    border: 2px solid #f44336 !important;
-    transition: border-color 0.3s ease;
+/* Add this as content.css file in your extension */
+.bias-highlight {
+    border: 2px solid #e53935 !important;
+    background-color: rgba(229, 57, 53, 0.05) !important;
 }
 
-/* Tooltip styles */
 .bias-tooltip {
     position: absolute;
-    background-color: #fff;
-    border: 1px solid #ddd;
+    background-color: white;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: 10000;
     max-width: 300px;
     font-family: Arial, sans-serif;
     font-size: 14px;
     line-height: 1.4;
-    color: #333;
-    margin-top: 5px;
 }
 
-.bias-tooltip::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 15px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #fff;
-    filter: drop-shadow(0 -1px 0 #ddd);
+.bias-tooltip h4 {
+    margin: 0 0 8px;
+    color: #e53935;
+    font-size: 16px;
 }
 
-.bias-tooltip strong {
-    color: #f44336;
-    display: block;
-    margin-bottom: 5px;
+.bias-tooltip h5 {
+    margin: 8px 0 4px;
+    font-size: 14px;
 }
 
 .bias-tooltip ul {
-    margin: 5px 0 10px 0;
+    margin: 4px 0;
     padding-left: 20px;
 }
 
 .bias-tooltip li {
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
-/* Highlight for gender-biased terms */
-.gender-biased-term {
-    background-color: rgba(255, 192, 203, 0.3);
-    border-bottom: 1px dotted #f44336;
-    padding: 0 2px;
-    cursor: help;
+.close-tooltip {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #999;
+}
+
+.close-tooltip:hover {
+    color: #333;
 }

@@ -1,4 +1,5 @@
-import { settings, biasCache, loadSettings } from "./settings.js";
+import { settings, biasCache, loadSettings, saveSetting } from "./settings.js";
+
 
 // Load settings at startup
 await loadSettings();
@@ -7,8 +8,11 @@ await loadSettings();
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.get("apiKey", (data) => {
         if (!data.apiKey) {
-            chrome.storage.local.set({ apiKey: "DEFAULT_API_KEY" }, () => {
+            // Using your provided API key as the default
+            const defaultApiKey = "AIzaSyBiyGVo8nRwozOSvOod-Csj3fAX__VhYq0";
+            chrome.storage.local.set({ apiKey: defaultApiKey }, () => {
                 console.log("API Key initialized.");
+                settings.apiKey = defaultApiKey;
             });
         }
     });
@@ -35,7 +39,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 chrome.scripting.insertCSS({ target: { tabId: tabId }, files: ["content.css"] })
                     .catch(err => console.error("Error injecting CSS:", err));
 
-                chrome.scripting.executeScript({ target: { tabId: tabId }, files: ["content.js"] })
+                chrome.scripting.executeScript({ target: { tabId: tabId }, files: ["bias-data.js", "content.js"] })
                     .catch(err => console.error("Error injecting script:", err));
             }
         });
@@ -50,8 +54,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (request.action === "updateCache") {
+        // Add timestamp to each cache entry
+        for (const key in request.cache) {
+            request.cache[key].timestamp = Date.now();
+        }
         Object.assign(biasCache, request.cache);
         chrome.storage.local.set({ biasCache });
+        sendResponse({ success: true });
+        return true;
+    }
+
+    if (request.action === "checkApiKey") {
+        sendResponse({
+            hasApiKey: !!settings.apiKey,
+            apiKey: settings.apiKey
+        });
+        return true;
+    }
+
+    if (request.action === "saveApiKey") {
+        saveSetting("apiKey", request.apiKey)
+            .then(() => sendResponse({ success: true }))
+            .catch((error) => sendResponse({ success: false, error }));
         return true;
     }
 });
