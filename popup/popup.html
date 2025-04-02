@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bias Detector</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <h1>Bias Detector</h1>
+
+    <div class="status" id="apiStatus">API Status: Checking...</div>
+
+    <div class="toggle-container">
+        <span>Highlighting</span>
+        <label class="toggle">
+            <input type="checkbox" id="highlightToggle" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="toggle-container">
+        <span>Use Fallback Detection</span>
+        <label class="toggle">
+            <input type="checkbox" id="fallbackToggle" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

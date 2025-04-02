@@ -1,0 +1,39 @@
+{
+    "manifest_version": 3,
+    "name": "Bias Detector Extension",
+    "version": "1.0",
+    "description": "Detects potentially biased language in web content with gender bias fallback detection",
+    "permissions": [
+        "storage",
+        "scripting",
+        "tabs",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.google.com/*"
+            ],
+            "js": [
+                "config.js",
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "popup/popup.html",
+        "default_icon": {
+            "16": "icons/icon_16x16.png",
+            "48": "icons/icon_48x48.png",
+            "128": "icons/icon_128x128.png"
+        }
+    }
+}

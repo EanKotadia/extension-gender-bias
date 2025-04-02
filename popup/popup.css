@@ -1,0 +1,199 @@
+/* Common Styling for both Popup and Options Page */
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+body {
+    font-family: 'Space Mono', monospace;
+    background-color: #121212;
+    color: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+h1,
+h2 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+}
+
+h2 {
+    margin-top: 35px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+input[type="text"],
+select,
+input[type="range"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 5px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    background-color: #444;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.checkbox-container label {
+    font-size: 14px;
+}
+
+.info-text {
+    font-size: 12px;
+    color: #888;
+}
+
+.slider-container {
+    margin-top: 10px;
+}
+
+/* Save status styling */
+#saveStatus {
+    margin-top: 20px;
+    color: #4CAF50;
+    font-weight: bold;
+    display: none;
+}
+
+/* Button styling */
+button {
+    background-color: #484848;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-family: 'Space Mono', monospace;
+}
+
+button:hover {
+    background-color: #3e3e3e;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styles for the sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    background: #444;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+input[type="range"]:hover {
+    background: #666;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+    background: #66BB6A;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+    background: #66BB6A;
+}
+
+input[type="range"]:focus {
+    outline: none;
+}
+
+/* Adjusting slider labels */
+#toxicityValue,
+#identityValue,
+#insultValue {
+    display: inline-block;
+    font-size: 14px;
+    margin-top: 5px;
+    color: #bbb;
+}
+
+#toxicityValue,
+#identityValue,
+#insultValue {
+    font-size: 14px;
+}
+
+#toxicityValue {
+    color: #FF7043;
+}
+
+#identityValue {
+    color: #FFEB3B;
+}
+
+#insultValue {
+    color: #4CAF50;
+}
