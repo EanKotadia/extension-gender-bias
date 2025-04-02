@@ -1,3 +1,62 @@
+// Add this to the top of content.js or create a new file called bias-data.js and import it
+const genderBiasedWords = [
+    {
+        biased: "mankind",
+        neutral: ["humanity", "humankind", "people"],
+        category: "gender"
+    },
+    {
+        biased: "chairman",
+        neutral: ["chairperson", "chair"],
+        category: "gender"
+    },
+    {
+        biased: "policeman",
+        neutral: ["police officer"],
+        category: "gender"
+    },
+    {
+        biased: "fireman",
+        neutral: ["firefighter"],
+        category: "gender"
+    },
+    {
+        biased: "stewardess",
+        neutral: ["flight attendant"],
+        category: "gender"
+    },
+    {
+        biased: "mailman",
+        neutral: ["mail carrier", "postal worker"],
+        category: "gender"
+    },
+    {
+        biased: "businessman",
+        neutral: ["businessperson", "professional"],
+        category: "gender"
+    },
+    {
+        biased: "congresswoman",
+        neutral: ["member of congress", "representative"],
+        category: "gender"
+    },
+    {
+        biased: "congressman",
+        neutral: ["member of congress", "representative"],
+        category: "gender"
+    },
+    {
+        biased: "salesgirl",
+        neutral: ["salesperson", "sales associate"],
+        category: "gender"
+    },
+    {
+        biased: "salesman",
+        neutral: ["salesperson", "sales associate"],
+        category: "gender"
+    }
+];
+
 async function checkBiasPerspective(text) {
     if (text.trim().length < 10) return [];
 
