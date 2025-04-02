@@ -1,8 +1,18 @@
 import { settings, biasCache, loadSettings, saveSetting } from "./settings.js";
 
+// Wrap initialization in an async function instead of using top-level await
+const initialize = async () => {
+    try {
+        await loadSettings();
+        console.log("Settings loaded successfully");
+    } catch (error) {
+        console.error("Error loading settings:", error);
+    }
+};
 
-// Load settings at startup
-await loadSettings();
+// Call the initialization function
+initialize();
+
 
 // Initialize API key on installation
 chrome.runtime.onInstalled.addListener(() => {
